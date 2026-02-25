@@ -27,7 +27,39 @@ $categories = $mysqli->query($query_categories);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <?php include 'header.php'; ?>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><i class="fas fa-shopping-bag"></i> ShopExpress</h1>
+                </div>
+                
+                <nav class="nav">
+                    <ul>
+                        <li><a href="index.php">Accueil</a></li>
+                        <li><a href="boutique.php">Boutique</a></li>
+                        <li><a href="categories.php">Catégories</a></li>
+                        <li><a href="contact.php">Contact</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="header-actions">
+                    <div class="search-box">
+                        <input type="text" placeholder="Rechercher un produit...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <a href="compte.php" class="icon-link">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.php" class="icon-link cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <!-- Hero Section -->
     <section class="hero">
