@@ -1,6 +1,6 @@
 <?php
-// Connexion à la base de données
-$mysqli = new mysqli("localhost", "root", "", "ecommerce_db");
+// Connexion à la base de données php_exam_db
+$mysqli = new mysqli("localhost", "root", "", "php_exam_db");
 
 if ($mysqli->connect_error) {
     die("Erreur de connexion : " . $mysqli->connect_error);
@@ -8,13 +8,9 @@ if ($mysqli->connect_error) {
 
 $mysqli->set_charset('utf8mb4');
 
-// Récupérer les produits en vedette
-$query = "SELECT * FROM produits ORDER BY date_ajout DESC LIMIT 8";
-$produits = $mysqli->query($query);
-
-// Récupérer les catégories
-$query_categories = "SELECT * FROM categories LIMIT 6";
-$categories = $mysqli->query($query_categories);
+// Récupérer les derniers articles (basé sur la date de publication)
+$query = "SELECT * FROM article ORDER BY publication_date DESC LIMIT 8";
+$articles = $mysqli->query($query);
 ?>
 
 <!DOCTYPE html>
@@ -29,7 +25,6 @@ $categories = $mysqli->query($query_categories);
 <body>
     <?php include 'header.php'; ?>
 
-    <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
@@ -40,89 +35,54 @@ $categories = $mysqli->query($query_categories);
         </div>
     </section>
 
-    <!-- Categories Section -->
     <section class="categories-section">
         <div class="container">
             <h2 class="section-title">Catégories populaires</h2>
             <div class="categories-grid">
-                <?php if ($categories && $categories->num_rows > 0): ?>
-                    <?php while ($categorie = $categories->fetch_assoc()): ?>
-                        <div class="category-card">
-                            <img src="<?php echo htmlspecialchars($categorie['image']); ?>" 
-                                 alt="<?php echo htmlspecialchars($categorie['nom']); ?>">
-                            <div class="category-info">
-                                <h3><?php echo htmlspecialchars($categorie['nom']); ?></h3>
-                                <a href="categorie.php?id=<?php echo $categorie['id']; ?>" class="btn-link">
-                                    Voir plus <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <!-- Categories par défaut si la table est vide -->
-                    <div class="category-card">
-                        <img src="images/electronique.jpg" alt="Électronique">
-                        <div class="category-info">
-                            <h3>Électronique</h3>
-                            <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                        </div>
+                <div class="category-card">
+                    <img src="images/electronique.jpg" alt="Électronique">
+                    <div class="category-info">
+                        <h3>Électronique</h3>
+                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
                     </div>
-                    <div class="category-card">
-                        <img src="images/mode.jpg" alt="Mode">
-                        <div class="category-info">
-                            <h3>Mode</h3>
-                            <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                        </div>
+                </div>
+                <div class="category-card">
+                    <img src="images/mode.jpg" alt="Mode">
+                    <div class="category-info">
+                        <h3>Mode</h3>
+                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
                     </div>
-                    <div class="category-card">
-                        <img src="images/maison.jpg" alt="Maison">
-                        <div class="category-info">
-                            <h3>Maison & Jardin</h3>
-                            <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                        </div>
+                </div>
+                <div class="category-card">
+                    <img src="images/maison.jpg" alt="Maison">
+                    <div class="category-info">
+                        <h3>Maison & Jardin</h3>
+                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
                     </div>
-                    <div class="category-card">
-                        <img src="images/sport.jpg" alt="Sport">
-                        <div class="category-info">
-                            <h3>Sport</h3>
-                            <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                        </div>
+                </div>
+                <div class="category-card">
+                    <img src="images/sport.jpg" alt="Sport">
+                    <div class="category-info">
+                        <h3>Sport</h3>
+                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
                     </div>
-                    <div class="category-card">
-                        <img src="images/livres.jpg" alt="Livres">
-                        <div class="category-info">
-                            <h3>Livres</h3>
-                            <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                    <div class="category-card">
-                        <img src="images/beaute.jpg" alt="Beauté">
-                        <div class="category-info">
-                            <h3>Beauté</h3>
-                            <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Products Section -->
     <section class="products-section">
         <div class="container">
             <h2 class="section-title">Produits en vedette</h2>
             <div class="products-grid">
-                <?php if ($produits && $produits->num_rows > 0): ?>
-                    <?php while ($produit = $produits->fetch_assoc()): ?>
+                <?php if ($articles && $articles->num_rows > 0): ?>
+                    <?php while ($article = $articles->fetch_assoc()): ?>
                         <div class="product-card">
-                            <?php if ($produit['promo'] > 0): ?>
-                                <div class="badge">-<?php echo $produit['promo']; ?>%</div>
-                            <?php endif; ?>
-                            <img src="<?php echo htmlspecialchars($produit['image']); ?>" 
-                                 alt="<?php echo htmlspecialchars($produit['nom']); ?>">
+                            <img src="<?php echo htmlspecialchars($article['article_image']); ?>" 
+                                 alt="<?php echo htmlspecialchars($article['article_name']); ?>">
                             <div class="product-info">
-                                <h3><?php echo htmlspecialchars($produit['nom']); ?></h3>
-                                <p class="description"><?php echo htmlspecialchars(substr($produit['description'], 0, 60)) . '...'; ?></p>
+                                <h3><?php echo htmlspecialchars($article['article_name']); ?></h3>
+                                <p class="description"><?php echo htmlspecialchars(substr($article['description'], 0, 60)) . '...'; ?></p>
                                 <div class="rating">
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
@@ -133,16 +93,9 @@ $categories = $mysqli->query($query_categories);
                                 </div>
                                 <div class="price-cart">
                                     <div class="price">
-                                        <?php if ($produit['promo'] > 0): ?>
-                                            <span class="old-price"><?php echo number_format($produit['prix'], 2); ?>€</span>
-                                            <span class="new-price">
-                                                <?php echo number_format($produit['prix'] * (1 - $produit['promo']/100), 2); ?>€
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="new-price"><?php echo number_format($produit['prix'], 2); ?>€</span>
-                                        <?php endif; ?>
+                                        <span class="new-price"><?php echo number_format($article['price'], 2); ?>€</span>
                                     </div>
-                                    <button class="btn-add-cart" onclick="ajouterPanier(<?php echo $produit['id']; ?>)">
+                                    <button class="btn-add-cart" onclick="ajouterPanier(<?php echo $article['article_id']; ?>)">
                                         <i class="fas fa-shopping-cart"></i>
                                     </button>
                                 </div>
@@ -150,7 +103,6 @@ $categories = $mysqli->query($query_categories);
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <!-- Produits exemple si la table est vide -->
                     <div class="product-card">
                         <div class="badge">-30%</div>
                         <img src="images/produit1.jpg" alt="Produit 1">
@@ -200,8 +152,6 @@ $categories = $mysqli->query($query_categories);
                             </div>
                         </div>
                     </div>
-
-                    <!-- Ajoutez plus de produits exemple... -->
                 <?php endif; ?>
             </div>
             
@@ -211,7 +161,6 @@ $categories = $mysqli->query($query_categories);
         </div>
     </section>
 
-    <!-- Promo Banner -->
     <section class="promo-banner">
         <div class="container">
             <div class="promo-content">
@@ -222,7 +171,6 @@ $categories = $mysqli->query($query_categories);
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -276,12 +224,14 @@ $categories = $mysqli->query($query_categories);
     <script>
         function ajouterPanier(produitId) {
             // Logique pour ajouter au panier
-            alert('Produit ajouté au panier !');
+            alert('Produit ID ' + produitId + ' ajouté au panier !');
             
-            // Mettre à jour le compteur du panier
+            // Mettre à jour le compteur du panier s'il existe dans le DOM
             let cartCount = document.querySelector('.cart-count');
-            let count = parseInt(cartCount.textContent);
-            cartCount.textContent = count + 1;
+            if(cartCount) {
+                let count = parseInt(cartCount.textContent) || 0;
+                cartCount.textContent = count + 1;
+            }
         }
     </script>
 </body>
