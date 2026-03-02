@@ -1,7 +1,6 @@
 <?php
 require 'db_config.php';
 
-// Mode debug: ajouter ?debug=1 à l'URL pour voir les messages d'erreur complets
 $debug = isset($_GET['debug']) && $_GET['debug'] == '1';
 $logFile = __DIR__ . '/error.log';
 $message = "";
