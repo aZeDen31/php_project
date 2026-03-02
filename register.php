@@ -65,6 +65,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_inscription'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Inscription</title>
 </head>
+
+<?php include 'header.php'; ?>
+
 <body>
 
     <section class="auth-section">
@@ -108,6 +111,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_inscription'])) {
             </div>
         </div>
     </section>
+
+    <?php include 'footer.php'; ?>
 
 </body>
 </html>
