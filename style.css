@@ -239,7 +239,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
     padding: 1.5rem;
     color: var(--white);
 }
@@ -501,20 +501,20 @@ body {
     .header-content {
         flex-wrap: wrap;
     }
-    
+
     .nav {
         order: 3;
         width: 100%;
     }
-    
+
     .nav ul {
         justify-content: center;
     }
-    
+
     .search-box input {
         width: 200px;
     }
-    
+
     .hero-content h2 {
         font-size: 2.2rem;
     }
@@ -525,19 +525,19 @@ body {
         gap: 1rem;
         font-size: 0.9rem;
     }
-    
+
     .search-box {
         display: none;
     }
-    
+
     .hero-content h2 {
         font-size: 1.8rem;
     }
-    
+
     .section-title {
         font-size: 2rem;
     }
-    
+
     .categories-grid,
     .products-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -549,19 +549,19 @@ body {
     .logo h1 {
         font-size: 1.4rem;
     }
-    
+
     .hero {
         padding: 3rem 0;
     }
-    
+
     .hero-content h2 {
         font-size: 1.5rem;
     }
-    
+
     .hero-content p {
         font-size: 1rem;
     }
-    
+
     .categories-grid,
     .products-grid {
         grid-template-columns: 1fr;
@@ -613,7 +613,7 @@ body {
     box-shadow:
         0 4px 6px rgba(0, 0, 0, 0.04),
         0 20px 60px rgba(37, 99, 235, 0.1),
-        0 1px 0 rgba(255,255,255,0.8) inset;
+        0 1px 0 rgba(255, 255, 255, 0.8) inset;
     padding: 3rem 2.5rem;
     width: 100%;
     max-width: 460px;
@@ -623,8 +623,15 @@ body {
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .auth-container::before {
@@ -667,8 +674,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .auth-message p[style*="green"] {
@@ -791,7 +805,16 @@ form {
         padding: 2rem 1.5rem;
         border-radius: 18px;
     }
+
     .auth-container h2 {
         font-size: 1.6rem;
     }
+}
+
+.header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
 }
