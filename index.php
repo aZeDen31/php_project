@@ -1,5 +1,4 @@
 <?php
-// Connexion à la base de données php_exam_db
 $mysqli = new mysqli("localhost", "root", "", "php_exam_db");
 
 if ($mysqli->connect_error) {
@@ -8,7 +7,6 @@ if ($mysqli->connect_error) {
 
 $mysqli->set_charset('utf8mb4');
 
-// Récupérer les derniers articles (basé sur la date de publication)
 $query = "SELECT * FROM article ORDER BY publication_date DESC LIMIT 8";
 $articles = $mysqli->query($query);
 ?>
@@ -35,42 +33,6 @@ $articles = $mysqli->query($query);
         </div>
     </section>
 
-    <section class="categories-section">
-        <div class="container">
-            <h2 class="section-title">Catégories populaires</h2>
-            <div class="categories-grid">
-                <div class="category-card">
-                    <img src="images/electronique.jpg" alt="Électronique">
-                    <div class="category-info">
-                        <h3>Électronique</h3>
-                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <img src="images/mode.jpg" alt="Mode">
-                    <div class="category-info">
-                        <h3>Mode</h3>
-                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <img src="images/maison.jpg" alt="Maison">
-                    <div class="category-info">
-                        <h3>Maison & Jardin</h3>
-                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <img src="images/sport.jpg" alt="Sport">
-                    <div class="category-info">
-                        <h3>Sport</h3>
-                        <a href="#" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <section class="products-section">
         <div class="container">
             <h2 class="section-title">Produits en vedette</h2>
@@ -78,7 +40,7 @@ $articles = $mysqli->query($query);
                 <?php if ($articles && $articles->num_rows > 0): ?>
                     <?php while ($article = $articles->fetch_assoc()): ?>
                         <div class="product-card">
-                            <img src="<?php echo htmlspecialchars($article['article_image']); ?>" 
+                            <img src="img/articles/<?php echo htmlspecialchars($article['article_image']); ?>" 
                                  alt="<?php echo htmlspecialchars($article['article_name']); ?>">
                             <div class="product-info">
                                 <h3><?php echo htmlspecialchars($article['article_name']); ?></h3>
@@ -95,8 +57,11 @@ $articles = $mysqli->query($query);
                                     <div class="price">
                                         <span class="new-price"><?php echo number_format($article['price'], 2); ?>€</span>
                                     </div>
+                                    <button class = "btn">
+                                        <a href="article?id=<?php echo $article['article_id']; ?>" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
+                                    </button>
                                     <button class="btn-add-cart" onclick="ajouterPanier(<?php echo $article['article_id']; ?>)">
-                                        <i class="fas fa-shopping-cart"></i>
+                                    <a href="detail?id=<?php echo $article['article_id']; ?>" class="btn-link"><i class="fas fa-arrow-right"></i></a>
                                     </button>
                                 </div>
                             </div>
@@ -161,31 +126,7 @@ $articles = $mysqli->query($query);
         </div>
     </section>
 
-    <section class="promo-banner">
-        <div class="container">
-            <div class="promo-content">
-                <h2>Offre spéciale du jour</h2>
-                <p>Profitez de -50% sur une sélection de produits</p>
-                <a href="promotions.php" class="btn btn-white">J'en profite</a>
-            </div>
-        </div>
-    </section>
-
     <?php include 'footer.php'; ?>
-
-    <script>
-        function ajouterPanier(produitId) {
-            // Logique pour ajouter au panier
-            alert('Produit ID ' + produitId + ' ajouté au panier !');
-            
-            // Mettre à jour le compteur du panier s'il existe dans le DOM
-            let cartCount = document.querySelector('.cart-count');
-            if(cartCount) {
-                let count = parseInt(cartCount.textContent) || 0;
-                cartCount.textContent = count + 1;
-            }
-        }
-    </script>
 </body>
 </html>
 

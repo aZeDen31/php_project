@@ -1,14 +1,11 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
-    // Définir une très longue durée de vie pour la session et le cookie (10 ans)
-    // Cela permet de rester connecté tant que la session n'est pas détruite sur le serveur
     ini_set('session.gc_maxlifetime', 315360000);
     ini_set('session.cookie_lifetime', 315360000);
     session_start();
 }
 require_once 'db_config.php';
 
-// 1. Initialisation par défaut pour TOUS les cas (non connecté ou erreur)
 $isLoggedIn = false;
 $userPhoto = 'default.jpg';
 $username = "test";
@@ -18,16 +15,12 @@ if (isset($_SESSION['user_id'])) {
     try {
         $stmt = $pdo->prepare("SELECT profile_picture, username FROM user WHERE user_id = :id");
         $stmt->execute([':id' => $_SESSION['user_id']]);
-        $user = $stmt->fetch();
-        $username = $user['username'];
-        
-        
-        // Si l'utilisateur a une photo en BDD, on l'utilise, sinon on garde default.jpg
-        if ($user && !empty($user['profile_picture'])) {
-            $userPhoto = $user['profile_picture'];
+        $userHeader = $stmt->fetch();
+        $username = $userHeader['username'];
+        if ($userHeader && !empty($userHeader['profile_picture'])) {
+            $userPhoto = $userHeader['profile_picture'];
         }
     } catch (PDOException $e) {
-        // En cas d'erreur, $userPhoto reste 'default.jpg'
     }
 }
 ?>
@@ -65,11 +58,11 @@ if (isset($_SESSION['user_id'])) {
                     </div>
 
                     <?php if ($isLoggedIn): ?>
-                        <a href="compte.php" class="icon-link profile-active header-avatar">
+                        <a href="account" class="icon-link profile-active header-avatar">
                             <img src="img/<?php echo htmlspecialchars($userPhoto); ?>" alt="Profil" class="header-avatar">
                         </a>
                     <?php else: ?>
-                        <a href="login.php" class="icon-link header-avatar">
+                        <a href="login" class="icon-link header-avatar">
                             <img src="img/<?php echo htmlspecialchars($userPhoto); ?>" alt="Connexion" class="header-avatar">
                         </a>
                     <?php endif; ?>
