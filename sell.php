@@ -15,6 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_sell'])) {
     $name        = htmlspecialchars(trim($_POST['article_name']));
     $description = htmlspecialchars(trim($_POST['description']));
     $price       = filter_var($_POST['price'], FILTER_VALIDATE_FLOAT);
+    $stock       = filter_var($_POST['stock'], FILTER_VALIDATE_INT);
     $img_name    = "default_article.png";
 
     if (isset($_FILES['article_image']) && $_FILES['article_image']['error'] == 0) {
@@ -33,8 +34,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_sell'])) {
         }
     }
 
-    if (!empty($name) && $price !== false && $price > 0 && empty($message)) {
+    if (!empty($name) && $price !== false && $price > 0 && $stock !== false && $stock >= 0 && empty($message)) {
         try {
+            $pdo->beginTransaction();
+            
             $stmt = $pdo->prepare("
                 INSERT INTO article (article_name, description, price, publication_date, autor_id, article_image)
                 VALUES (:n, :d, :p, CURDATE(), :a, :img)
@@ -46,9 +49,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_sell'])) {
                 ':a'   => $user_id,
                 ':img' => $img_name,
             ]);
+            
+            $article_id = $pdo->lastInsertId();
+            
+            $stmtStock = $pdo->prepare("
+                INSERT INTO stock (article_id, actual_stock)
+                VALUES (:aid, :stock)
+            ");
+            $stmtStock->execute([
+                ':aid'   => $article_id,
+                ':stock' => $stock
+            ]);
+            
+            $pdo->commit();
             $success = true;
             $message = "Votre article a été mis en vente avec succès !";
         } catch (PDOException $e) {
+            $pdo->rollBack();
             $message = "Erreur lors de la publication : " . htmlspecialchars($e->getMessage());
         }
     } elseif (empty($message)) {
@@ -123,13 +140,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_sell'])) {
                           style="resize:vertical;"><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="price">Prix *</label>
-                <div class="price-input">
-                    <input type="number" id="price" name="price" class="form-control"
-                           placeholder="0.00" min="0.01" step="0.01" required
-                           value="<?php echo isset($_POST['price']) ? htmlspecialchars($_POST['price']) : ''; ?>">
-                    <span>€</span>
+            <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div>
+                    <label for="price">Prix *</label>
+                    <div class="price-input">
+                        <input type="number" id="price" name="price" class="form-control"
+                               placeholder="0.00" min="0.01" step="0.01" required
+                               value="<?php echo isset($_POST['price']) ? htmlspecialchars($_POST['price']) : ''; ?>">
+                        <span>€</span>
+                    </div>
+                </div>
+                <div>
+                    <label for="stock">Quantité en stock *</label>
+                    <input type="number" id="stock" name="stock" class="form-control"
+                           placeholder="Ex: 5" min="1" step="1" required
+                           value="<?php echo isset($_POST['stock']) ? htmlspecialchars($_POST['stock']) : '1'; ?>">
                 </div>
             </div>
 

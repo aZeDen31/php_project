@@ -1,14 +1,8 @@
 <?php
-$mysqli = new mysqli("localhost", "root", "", "php_exam_db");
+require 'db_config.php';
 
-if ($mysqli->connect_error) {
-    die("Erreur de connexion : " . $mysqli->connect_error);
-}
-
-$mysqli->set_charset('utf8mb4');
-
-$query = "SELECT * FROM article ORDER BY publication_date DESC LIMIT 8";
-$articles = $mysqli->query($query);
+$stmt = $pdo->query("SELECT * FROM article ORDER BY publication_date DESC");
+$articles = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -37,11 +31,12 @@ $articles = $mysqli->query($query);
         <div class="container">
             <h2 class="section-title">Produits en vedette</h2>
             <div class="products-grid">
-                <?php if ($articles && $articles->num_rows > 0): ?>
-                    <?php while ($article = $articles->fetch_assoc()): ?>
+                <?php if ($articles && count($articles) > 0): ?>
+                    <?php foreach ($articles as $article): ?>
                         <div class="product-card">
                             <img src="img/articles/<?php echo htmlspecialchars($article['article_image']); ?>" 
-                                 alt="<?php echo htmlspecialchars($article['article_name']); ?>">
+                                 alt="<?php echo htmlspecialchars($article['article_name']); ?>"
+                                 style="object-fit: contain;">
                             <div class="product-info">
                                 <h3><?php echo htmlspecialchars($article['article_name']); ?></h3>
                                 <p class="description"><?php echo htmlspecialchars(substr($article['description'], 0, 60)) . '...'; ?></p>
@@ -66,7 +61,7 @@ $articles = $mysqli->query($query);
                                 </div>
                             </div>
                         </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 <?php else: ?>
                     <div class="product-card">
                         <div class="badge">-30%</div>
@@ -120,16 +115,9 @@ $articles = $mysqli->query($query);
                 <?php endif; ?>
             </div>
             
-            <div class="view-more">
-                <a href="boutique.php" class="btn btn-secondary">Voir tous les produits</a>
-            </div>
         </div>
     </section>
 
     <?php include 'footer.php'; ?>
 </body>
 </html>
-
-<?php
-$mysqli->close();
-?>

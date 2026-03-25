@@ -39,7 +39,7 @@ $similar = $stmtSim->fetchAll();
     <style>
         .detail-section { padding: 3rem 0; background: var(--bg-light); min-height: 80vh; }
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; background: var(--white); border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 15px rgba(0,0,0,.07); }
-        .detail-image img { width: 100%; border-radius: 12px; object-fit: cover; max-height: 420px; }
+        .detail-image img { width: 100%; border-radius: 12px; object-fit: contain; max-height: 420px; }
         .detail-info h1 { font-size: 1.8rem; margin-bottom: 1rem; }
         .detail-price { font-size: 2rem; font-weight: 700; color: var(--primary-color); margin: 1rem 0; }
         .detail-meta { display: flex; gap: 1.5rem; color: var(--text-light); font-size: .9rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
@@ -81,7 +81,7 @@ $similar = $stmtSim->fetchAll();
                 <h1><?php echo htmlspecialchars($article['article_name']); ?></h1>
 
                 <div class="detail-meta">
-                    <span><i class="fas fa-user"></i> <?php echo htmlspecialchars($article['author_name']); ?></span>
+                    <span><i class="fas fa-user"></i> <a href="account.php?id=<?php echo $article['autor_id']; ?>" style="color: inherit; text-decoration: none; font-weight: 600;"><?php echo htmlspecialchars($article['author_name']); ?></a></span>
                     <span><i class="fas fa-calendar"></i> <?php echo htmlspecialchars($article['publication_date']); ?></span>
                     <div class="rating" style="display:inline-flex;">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
@@ -159,18 +159,18 @@ $similar = $stmtSim->fetchAll();
 
 <script>
 let qty = 1;
+
 function changeQty(delta) {
     qty = Math.max(1, qty + delta);
     document.getElementById('qty').textContent = qty;
 }
+
 function addToCart(id) {
-    alert('Article ajouté au panier (x' + qty + ')');
-    const c = document.querySelector('.cart-count');
-    if (c) c.textContent = parseInt(c.textContent || 0) + qty;
+    window.location.href = 'add_to_cart.php?id=' + id + '&qty=' + qty;
 }
+
 function buyNow(id) {
-    addToCart(id);
-    window.location.href = 'panier.php';
+    window.location.href = 'add_to_cart.php?id=' + id + '&qty=' + qty + '&buy=1';
 }
 </script>
 </body>

@@ -67,7 +67,7 @@ if (isset($_SESSION['user_id'])) {
                         </a>
                     <?php endif; ?>
 
-                    <a href="panier" class="icon-link cart">
+                    <a href="cart" class="icon-link cart">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-count">0</span>
                     </a>

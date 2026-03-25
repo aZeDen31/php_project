@@ -71,7 +71,6 @@ if ($mode === 'article') {
     }
 }
 
-/* ===== MODE : modifier le profil ===== */
 if ($mode === 'profile') {
     $stmt = $pdo->prepare("SELECT * FROM user WHERE user_id = :id");
     $stmt->execute([':id' => $user_id]);
@@ -161,8 +160,8 @@ if ($mode === 'profile') {
             <form method="POST" action="" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Image actuelle</label>
-                    <img src="<?php echo htmlspecialchars($article['article_image']); ?>"
-                         style="width:100%;height:200px;object-fit:cover;border-radius:10px;margin-bottom:.5rem;"
+                    <img src="img/articles/<?php echo htmlspecialchars($article['article_image']); ?>"
+                         style="width:100%;height:200px;object-fit:contain;border-radius:10px;margin-bottom:.5rem;"
                          onerror="this.src='https://placehold.co/600x200?text=Image'">
                     <input type="file" name="article_image" class="form-control" accept="image/*">
                 </div>

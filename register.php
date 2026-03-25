@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'db_config.php';
 
 $debug = isset($_GET['debug']) && $_GET['debug'] == '1';
@@ -42,7 +43,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_inscription'])) {
                 ':img' => $img_name,
                 ':r'   => 'user'
             ]);
-            $message = "Inscription réussie !";
+            
+            $_SESSION['user_id'] = $pdo->lastInsertId();
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = 'user';
+            
+            header('Location: index.php');
+            exit;
         } catch (PDOException $e) {
             // Log détaillé dans error.log
             $logEntry = sprintf("[%s] PDOException (%s): %s in %s on line %d\n", date('Y-m-d H:i:s'), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());

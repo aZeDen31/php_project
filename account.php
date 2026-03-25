@@ -9,21 +9,27 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $message = "";
+$success_msg = "";
 
-// Récupérer les infos utilisateur
-$stmt = $pdo->prepare("SELECT * FROM user WHERE user_id = :id");
-$stmt->execute([':id' => $user_id]);
-$user = $stmt->fetch();
+$is_own_profile = true;
+$view_user_id = $user_id;
 
-// Récupérer les factures de l'utilisateur
-$stmtInv = $pdo->prepare("SELECT * FROM invoice WHERE user_id = :id ORDER BY transaction_date DESC");
-$stmtInv->execute([':id' => $user_id]);
-$invoices = $stmtInv->fetchAll();
+if (isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] != $user_id) {
+    $is_own_profile = false;
+    $view_user_id = (int)$_GET['id'];
+}
 
-// Récupérer les articles publiés par l'utilisateur
-$stmtArt = $pdo->prepare("SELECT * FROM article WHERE autor_id = :id ORDER BY publication_date DESC");
-$stmtArt->execute([':id' => $user_id]);
-$myArticles = $stmtArt->fetchAll();
+// Handle add balance form submission
+if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_balance'])) {
+    $amount = filter_var($_POST['amount'], FILTER_VALIDATE_FLOAT);
+    if ($amount !== false && $amount > 0) {
+        $stmtUpdate = $pdo->prepare("UPDATE user SET solde = solde + :amt WHERE user_id = :id");
+        $stmtUpdate->execute([':amt' => $amount, ':id' => $user_id]);
+        $success_msg = "Solde mis à jour avec succès (+ " . number_format($amount, 2) . " €).";
+    } else {
+        $message = "Montant invalide.";
+    }
+}
 
 // Déconnexion
 if (isset($_GET['logout'])) {
@@ -31,13 +37,36 @@ if (isset($_GET['logout'])) {
     header('Location: login.php');
     exit;
 }
+
+// Récupérer les infos utilisateur
+$stmt = $pdo->prepare("SELECT * FROM user WHERE user_id = :id");
+$stmt->execute([':id' => $view_user_id]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    echo "Utilisateur introuvable.";
+    exit;
+}
+
+// Récupérer les factures de l'utilisateur (seulement si propre profil)
+$invoices = [];
+if ($is_own_profile) {
+    $stmtInv = $pdo->prepare("SELECT * FROM invoice WHERE user_id = :id ORDER BY transaction_date DESC");
+    $stmtInv->execute([':id' => $user_id]);
+    $invoices = $stmtInv->fetchAll();
+}
+
+// Récupérer les articles publiés par l'utilisateur
+$stmtArt = $pdo->prepare("SELECT * FROM article WHERE autor_id = :id ORDER BY publication_date DESC");
+$stmtArt->execute([':id' => $view_user_id]);
+$myArticles = $stmtArt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Compte – ShopExpress</title>
+    <title><?php echo $is_own_profile ? "Mon Compte" : "Profil de " . htmlspecialchars($user['username']); ?> – ShopExpress</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -58,7 +87,7 @@ if (isset($_GET['logout'])) {
         .invoice-table td { padding: .8rem 1rem; border-bottom: 1px solid var(--border-color); }
         .article-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
         .article-mini { border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
-        .article-mini img { width: 100%; height: 120px; object-fit: cover; }
+        .article-mini img { width: 100%; height: 120px; object-fit: contain; }
         .article-mini-info { padding: .8rem; }
         .article-mini-info h4 { font-size: .9rem; margin-bottom: .3rem; }
         .article-mini-info .price { color: var(--primary-color); font-weight: 700; }
@@ -82,18 +111,29 @@ if (isset($_GET['logout'])) {
                      alt="Photo de profil"
                      onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($user['username']); ?>&background=2563eb&color=fff'">
                 <h3><?php echo htmlspecialchars($user['username']); ?></h3>
-                <p style="color:var(--text-light);font-size:.85rem;"><?php echo htmlspecialchars($user['email']); ?></p>
-                <div class="solde"><i class="fas fa-wallet"></i> <?php echo number_format($user['solde'], 2); ?> €</div>
+                
+                <?php if ($is_own_profile): ?>
+                    <p style="color:var(--text-light);font-size:.85rem;"><?php echo htmlspecialchars($user['email']); ?></p>
+                    <div class="solde"><i class="fas fa-wallet"></i> <?php echo number_format($user['solde'], 2); ?> €</div>
+                <?php else: ?>
+                    <span style="display:inline-block; margin-top:0.5rem; padding: 0.3rem 0.8rem; background:var(--bg-light); border-radius:20px; font-size:0.85rem; color:var(--text-light);">
+                        Membre depuis <?php echo isset($user['created_at']) ? date('Y', strtotime($user['created_at'])) : "récemment"; ?>
+                    </span>
+                <?php endif; ?>
 
-                <nav>
-                    <a href="#profil" class="active"><i class="fas fa-user"></i> Mon profil</a>
-                    <a href="#commandes"><i class="fas fa-file-invoice"></i> Mes commandes</a>
-                    <a href="#articles"><i class="fas fa-store"></i> Mes articles</a>
-                    <a href="sell"><i class="fas fa-plus-circle"></i> Vendre un article</a>
-                    <?php if ($user['role'] === 'admin'): ?>
-                        <a href="admin"><i class="fas fa-cog"></i> Administration</a>
+                <nav style="margin-top: 1.5rem;">
+                    <a href="#profil" class="active"><i class="fas fa-user"></i> <?php echo $is_own_profile ? "Mon profil" : "Profil utilisateur"; ?></a>
+                    <a href="#articles"><i class="fas fa-store"></i> <?php echo $is_own_profile ? "Mes articles" : "Ses articles"; ?></a>
+                    
+                    <?php if ($is_own_profile): ?>
+                        <a href="#solde-section"><i class="fas fa-wallet"></i> Ajouter du solde</a>
+                        <a href="#commandes"><i class="fas fa-file-invoice"></i> Mes commandes</a>
+                        <a href="sell.php"><i class="fas fa-plus-circle"></i> Vendre un article</a>
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                            <a href="admin.php"><i class="fas fa-cog"></i> Administration</a>
+                        <?php endif; ?>
+                        <a href="account.php?logout=1" class="logout"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                     <?php endif; ?>
-                    <a href="account.php?logout=1" class="logout"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                 </nav>
             </aside>
 
@@ -108,24 +148,97 @@ if (isset($_GET['logout'])) {
                             <label style="font-size:.85rem;color:var(--text-light);">Nom d'utilisateur</label>
                             <p style="font-weight:600;"><?php echo htmlspecialchars($user['username']); ?></p>
                         </div>
-                        <div>
-                            <label style="font-size:.85rem;color:var(--text-light);">Email</label>
-                            <p style="font-weight:600;"><?php echo htmlspecialchars($user['email']); ?></p>
-                        </div>
-                        <div>
-                            <label style="font-size:.85rem;color:var(--text-light);">Rôle</label>
-                            <p style="font-weight:600;"><?php echo htmlspecialchars($user['role']); ?></p>
-                        </div>
-                        <div>
-                            <label style="font-size:.85rem;color:var(--text-light);">Solde</label>
-                            <p style="font-weight:600;color:var(--primary-color);"><?php echo number_format($user['solde'], 2); ?> €</p>
-                        </div>
+                        <?php if ($is_own_profile): ?>
+                            <div>
+                                <label style="font-size:.85rem;color:var(--text-light);">Email</label>
+                                <p style="font-weight:600;"><?php echo htmlspecialchars($user['email']); ?></p>
+                            </div>
+                            <div>
+                                <label style="font-size:.85rem;color:var(--text-light);">Rôle</label>
+                                <p style="font-weight:600;"><?php echo htmlspecialchars($user['role']); ?></p>
+                            </div>
+                            <div>
+                                <label style="font-size:.85rem;color:var(--text-light);">Solde</label>
+                                <p style="font-weight:600;color:var(--primary-color);"><?php echo number_format($user['solde'], 2); ?> €</p>
+                            </div>
+                        <?php else: ?>
+                            <div>
+                                <label style="font-size:.85rem;color:var(--text-light);">Articles publiés</label>
+                                <p style="font-weight:600;"><?php echo count($myArticles); ?></p>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    <a href="edit" class="btn btn-primary" style="margin-top:1.5rem;display:inline-block;">
-                        <i class="fas fa-edit"></i> Modifier mon profil
-                    </a>
+                    <?php if ($is_own_profile): ?>
+                        <a href="edit.php" class="btn btn-primary" style="margin-top:1.5rem;display:inline-block;">
+                            <i class="fas fa-edit"></i> Modifier mon profil
+                        </a>
+                    <?php endif; ?>
                 </div>
 
+                <?php if ($is_own_profile): ?>
+                <!-- Solde -->
+                <div id="solde-section">
+                    <h2><i class="fas fa-wallet"></i> Ajouter du solde</h2>
+                    
+                    <?php if (!empty($success_msg)): ?>
+                        <div style="color: #065f46; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 10px; padding: .75rem 1rem; margin-bottom: 1.5rem; text-align: center;">
+                            <?php echo $success_msg; ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($message)): ?>
+                        <div style="color: #991b1b; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 10px; padding: .75rem 1rem; margin-bottom: 1.5rem; text-align: center;">
+                            <?php echo $message; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="POST" action="account.php" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+                        <input type="number" name="amount" class="form-control" placeholder="Montant en € (ex: 50.00)" min="0.01" step="0.01" required style="max-width:300px;">
+                        <button type="submit" name="add_balance" class="btn btn-primary" style="padding: .85rem 1.5rem; border-radius: 12px; border:none; cursor:pointer;">
+                            <i class="fas fa-plus"></i> Créditer
+                        </button>
+                    </form>
+                </div>
+                <?php endif; ?>
+
+                <!-- Articles publiés -->
+                <div id="articles">
+                    <h2><i class="fas fa-store"></i> <?php echo $is_own_profile ? "Mes articles en vente" : "Ses articles en vente"; ?></h2>
+                    <?php if (empty($myArticles)): ?>
+                        <p style="color:var(--text-light);text-align:center;padding:2rem 0;">
+                            <i class="fas fa-tags" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
+                            <?php echo $is_own_profile ? "Vous n'avez pas encore mis d'articles en vente." : "Cet utilisateur n'a pas encore mis d'articles en vente."; ?>
+                            <?php if ($is_own_profile): ?>
+                                <a href="sell.php" style="display:block;margin-top:.5rem;">Vendre mon premier article</a>
+                            <?php endif; ?>
+                        </p>
+                    <?php else: ?>
+                        <div class="article-list">
+                            <?php foreach ($myArticles as $art): ?>
+                                <div class="article-mini">
+                                    <img src="img/articles/<?php echo htmlspecialchars($art['article_image']); ?>"
+                                         alt="<?php echo htmlspecialchars($art['article_name']); ?>"
+                                         onerror="this.src='https://placehold.co/200x120?text=Image'">
+                                    <div class="article-mini-info">
+                                        <h4><?php echo htmlspecialchars($art['article_name']); ?></h4>
+                                        <span class="price"><?php echo number_format($art['price'], 2); ?> €</span>
+                                        <div class="actions">
+                                            <?php if ($is_own_profile || (isset($_SESSION['role']) && $_SESSION['role'] === 'admin')): ?>
+                                                <a href="edit.php?article_id=<?php echo $art['article_id']; ?>" class="btn-sm btn-edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <a href="detail.php?id=<?php echo $art['article_id']; ?>" class="btn-sm" style="background:var(--bg-light); color:var(--text-dark); text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($is_own_profile): ?>
                 <!-- Commandes / Factures -->
                 <div id="commandes">
                     <h2><i class="fas fa-file-invoice"></i> Mes commandes</h2>
@@ -161,40 +274,7 @@ if (isset($_GET['logout'])) {
                         </table>
                     <?php endif; ?>
                 </div>
-
-                <!-- Articles publiés -->
-                <div id="articles">
-                    <h2><i class="fas fa-store"></i> Mes articles en vente</h2>
-                    <?php if (empty($myArticles)): ?>
-                        <p style="color:var(--text-light);text-align:center;padding:2rem 0;">
-                            <i class="fas fa-tags" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
-                            Vous n'avez pas encore mis d'articles en vente.
-                            <a href="sell" style="display:block;margin-top:.5rem;">Vendre mon premier article</a>
-                        </p>
-                    <?php else: ?>
-                        <div class="article-list">
-                            <?php foreach ($myArticles as $art): ?>
-                                <div class="article-mini">
-                                    <img src="img/articles/<?php echo htmlspecialchars($art['article_image']); ?>"
-                                         alt="<?php echo htmlspecialchars($art['article_name']); ?>"
-                                         onerror="this.src='https://placehold.co/200x120?text=Image'">
-                                    <div class="article-mini-info">
-                                        <h4><?php echo htmlspecialchars($art['article_name']); ?></h4>
-                                        <span class="price"><?php echo number_format($art['price'], 2); ?> €</span>
-                                        <div class="actions">
-                                            <a href="edit.php?article_id=<?php echo $art['article_id']; ?>" class="btn-sm btn-edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="detail.php?id=<?php echo $art['article_id']; ?>" class="btn-sm" style="background:var(--bg-light);">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                <?php endif; ?>
 
             </main>
         </div>
