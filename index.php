@@ -40,21 +40,10 @@ $articles = $stmt->fetchAll();
                             <div class="product-info">
                                 <h3><?php echo htmlspecialchars($article['article_name']); ?></h3>
                                 <p class="description"><?php echo htmlspecialchars(substr($article['description'], 0, 60)) . '...'; ?></p>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                    <span>(4.0)</span>
-                                </div>
                                 <div class="price-cart">
                                     <div class="price">
                                         <span class="new-price"><?php echo number_format($article['price'], 2); ?>€</span>
                                     </div>
-                                    <button class = "btn">
-                                        <a href="article?id=<?php echo $article['article_id']; ?>" class="btn-link">Voir plus <i class="fas fa-arrow-right"></i></a>
-                                    </button>
                                     <button class="btn-add-cart" onclick="ajouterPanier(<?php echo $article['article_id']; ?>)">
                                     <a href="detail?id=<?php echo $article['article_id']; ?>" class="btn-link"><i class="fas fa-arrow-right"></i></a>
                                     </button>

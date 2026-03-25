@@ -1,7 +1,10 @@
 RewriteEngine On
 
+# Route personnalisé pour valider le panier
+RewriteRule ^cart/validate/?$ cart_validate.php [L,QSA]
+
 # Ajouter .php automatiquement si le fichier existe
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.*)$ $1.php [L]   
+RewriteRule ^(.*)$ $1.php [L]

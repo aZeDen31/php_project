@@ -118,9 +118,12 @@ $similar = $stmtSim->fetchAll();
 
                 <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $article['autor_id']): ?>
                     <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-color);">
-                        <a href="edit.php?article_id=<?php echo $article['article_id']; ?>" class="btn btn-secondary" style="font-size:.9rem;">
-                            <i class="fas fa-edit"></i> Modifier cet article
-                        </a>
+                        <form action="edit.php" method="POST" style="display:inline;">
+                            <input type="hidden" name="article_id" value="<?php echo $article['article_id']; ?>">
+                            <button type="submit" class="btn btn-secondary" style="font-size:.9rem; width:100%;">
+                                <i class="fas fa-edit"></i> Modifier cet article
+                            </button>
+                        </form>
                     </div>
                 <?php endif; ?>
             </div>

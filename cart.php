@@ -101,7 +101,7 @@ foreach ($cart_infos as $item) {
                     <i class="fas fa-shopping-basket"></i>
                     <h3>Votre panier est vide</h3>
                     <p>Découvrez nos produits et trouvez votre bonheur !</p>
-                    <a href="index.php" class="btn btn-primary">
+                    <a href="/php-exam/php_project/" class="btn btn-primary">
                         <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Retourner à la boutique
                     </a>
                 </div>
@@ -150,9 +150,9 @@ foreach ($cart_infos as $item) {
                             <span>Total</span>
                             <span><?php echo number_format($cart_total, 2); ?> €</span>
                         </div>
-                        <button class="btn btn-primary btn-checkout" onclick="checkout()">
+                        <a href="cart/validate" class="btn btn-primary btn-checkout" style="text-decoration: none;">
                             <i class="fas fa-credit-card"></i> Passer la commande
-                        </button>
+                        </a>
                     </div>
                 </div>
             <?php endif; ?>

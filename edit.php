@@ -10,11 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $message = "";
 $success = false;
-$mode    = isset($_GET['article_id']) ? 'article' : 'profile';
+$mode    = isset($_REQUEST['article_id']) ? 'article' : 'profile';
 
-/* ===== MODE : modifier un article ===== */
 if ($mode === 'article') {
-    $article_id = (int)$_GET['article_id'];
+    $article_id = (int)$_REQUEST['article_id'];
     $stmt = $pdo->prepare("SELECT * FROM article WHERE article_id = :id");
     $stmt->execute([':id' => $article_id]);
     $article = $stmt->fetch();
@@ -50,7 +49,7 @@ if ($mode === 'article') {
                 $stmt->execute([':n'=>$name, ':d'=>$description, ':p'=>$price, ':img'=>$img_name, ':id'=>$article_id]);
                 $success = true;
                 $message = "Article mis à jour avec succès !";
-                // Refresh
+                
                 $stmt2 = $pdo->prepare("SELECT * FROM article WHERE article_id = :id");
                 $stmt2->execute([':id' => $article_id]);
                 $article = $stmt2->fetch();
@@ -62,8 +61,7 @@ if ($mode === 'article') {
         }
     }
 
-    // Suppression article
-    if (isset($_GET['delete']) && $_GET['delete'] == 1) {
+    if (isset($_REQUEST['delete']) && $_REQUEST['delete'] == 1) {
         $stmt = $pdo->prepare("DELETE FROM article WHERE article_id = :id AND autor_id = :uid");
         $stmt->execute([':id' => $article_id, ':uid' => $user_id]);
         header('Location: account.php');
@@ -81,7 +79,6 @@ if ($mode === 'profile') {
         $email    = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
         $img_name = $user['profile_picture'];
 
-        // Nouveau mot de passe optionnel
         $new_password = null;
         if (!empty($_POST['new_password'])) {
             if ($_POST['new_password'] === $_POST['confirm_password']) {
@@ -186,9 +183,11 @@ if ($mode === 'profile') {
 
             <div class="delete-zone">
                 <p style="color:var(--text-light);margin-bottom:1rem;">Zone dangereuse</p>
-                <a href="edit.php?article_id=<?php echo $article['article_id']; ?>&delete=1"
-                   onclick="return confirm('Supprimer cet article définitivement ?')"
-                   class="btn-danger"><i class="fas fa-trash"></i> Supprimer l'article</a>
+                <form action="edit.php" method="POST" onsubmit="return confirm('Supprimer cet article définitivement ?');" style="display:inline;">
+                    <input type="hidden" name="article_id" value="<?php echo $article['article_id']; ?>">
+                    <input type="hidden" name="delete" value="1">
+                    <button type="submit" class="btn-danger" style="border:none;"><i class="fas fa-trash"></i> Supprimer l'article</button>
+                </form>
             </div>
 
         <?php else: /* mode profil */ ?>

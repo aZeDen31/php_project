@@ -207,7 +207,7 @@ $articles = $pdo->query("
                                 <td><?php echo $art['article_id']; ?></td>
                                 <td>
                                     <img src="img/articles/<?php echo htmlspecialchars($art['article_image']); ?>"
-                                         style="width:50px;height:40px;object-fit:cover;border-radius:6px;"
+                                         style="width:50px;height:40px;object-fit:contain;border-radius:6px;"
                                          onerror="this.src='https://placehold.co/50x40?text=img'">
                                 </td>
                                 <td><?php echo htmlspecialchars($art['article_name']); ?></td>
