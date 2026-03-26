@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 26 mars 2026 à 14:30
+-- Généré le : jeu. 26 mars 2026 à 17:26
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -49,7 +49,8 @@ INSERT INTO `article` (`article_id`, `article_name`, `description`, `price`, `pu
 (5, 'Livre : Maîtriser Eloquent', 'Le guide ultime pour comprendre les modèles Laravel.', 29.9, '2026-03-14', 1, 'book.jpg'),
 (6, 'Un écran 4k', 'Ecran parfait pour le gaming', 200, '2026-03-21', 6, 'article_69be558d80faf.jpg'),
 (7, 'Un beau live', 'parfait pour la lecture', 20, '2026-03-24', 6, 'article_69c25be18f5c1.jpg'),
-(8, 'Un beau live', 'parfait pour la lecture', 20, '2026-03-24', 6, 'article_69c25c0c29b0f.jpg');
+(8, 'Un beau live', 'parfait pour la lecture', 20, '2026-03-24', 6, 'article_69c25c0c29b0f.jpg'),
+(9, 'Un guerrier très fort', 'Il a deux épées', 1, '2026-03-26', 6, 'article_69c544f2caaa8.png');
 
 -- --------------------------------------------------------
 
@@ -63,13 +64,6 @@ CREATE TABLE `cart` (
   `article_id` int(11) NOT NULL,
   `article_number` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Déchargement des données de la table `cart`
---
-
-INSERT INTO `cart` (`cart_id`, `user_id`, `article_id`, `article_number`) VALUES
-(5, 6, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -97,48 +91,9 @@ INSERT INTO `invoice` (`invoice_id`, `user_id`, `transaction_date`, `amount`, `i
 (3, 1, '2026-03-26', 180, '19 Avenue Philippe Lebas', 'Frévent', 62270),
 (4, 1, '2026-03-26', 1250, '19 Avenue Philippe Lebas', 'Frévent', 62270),
 (5, 1, '2026-03-26', 20, '19 Avenue Philippe Lebas', 'Frévent', 62270),
-(6, 1, '2026-03-26', 20, '19 Avenue Philippe Lebas', 'Frévent', 62270);
-
--- --------------------------------------------------------
-
---
--- Structure de la table `migrations`
---
-
-CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(191) NOT NULL,
-  `batch` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Déchargement des données de la table `migrations`
---
-
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
-(1, '2026_03_18_104825_create_sessions_table', 1);
-
--- --------------------------------------------------------
-
---
--- Structure de la table `sessions`
---
-
-CREATE TABLE `sessions` (
-  `id` varchar(191) NOT NULL,
-  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `ip_address` varchar(45) DEFAULT NULL,
-  `user_agent` text DEFAULT NULL,
-  `payload` longtext NOT NULL,
-  `last_activity` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Déchargement des données de la table `sessions`
---
-
-INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('VApFtUNAKsL99VN1ym4jzcBtI1SCJcRzqz63eSyA', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoib3VDeTMyMVJWa1lBbVNWUlgyTUZFWXJTY1kzYkY4N0N5M0FvWGl1RyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9wcm9kdWN0cyI7czo1OiJyb3V0ZSI7Tjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1773834735);
+(6, 1, '2026-03-26', 20, '19 Avenue Philippe Lebas', 'Frévent', 62270),
+(7, 1, '2026-03-26', 100, '19 Avenue Philippe Lebas', 'Frévent', 62270),
+(8, 6, '2026-03-26', 5, '19 Avenue Philippe Lebas', 'Frévent', 62270);
 
 -- --------------------------------------------------------
 
@@ -158,13 +113,14 @@ CREATE TABLE `stock` (
 
 INSERT INTO `stock` (`stock_id`, `article_id`, `actual_stock`) VALUES
 (1, 7, 0),
-(2, 8, 10),
+(2, 8, 5),
 (3, 1, 10),
 (4, 2, 10),
 (5, 3, 10),
 (6, 4, 10),
 (7, 5, 10),
-(8, 6, 10);
+(8, 6, 10),
+(10, 9, 0);
 
 -- --------------------------------------------------------
 
@@ -188,8 +144,7 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`user_id`, `username`, `password`, `email`, `solde`, `profile_picture`, `role`) VALUES
 (1, 'admin', '$2y$10$KUISt/NHTo.WY6RceHJ1bOqSKKLec1qSvma7itMHNDJzXlGmeqLZe', 'admin@mail.com', 5e26, 'default.jpg', 'admin'),
-(6, 'aZeDenBis', '$2y$10$Dy7K/Isc/4a4P9hvvAMPjuecjnRIDn75MHYcmJiMLc5kiDkKIuFJK', 'lucasgosselin3101@gmail.com', 99994700, 'user_69be551089414.jpg', 'admin'),
-(8, 'grkn', '$2y$10$/1ZrzG6etL8fOl9ECZ2Zdehx4P.i8ec65W9j5ABN7/vDwi82wkt4a', 'vzub@m.com', 0, 'default.jpg', 'admin');
+(6, 'aZeDenBis', '$2y$10$Dy7K/Isc/4a4P9hvvAMPjuecjnRIDn75MHYcmJiMLc5kiDkKIuFJK', 'lucasgosselin3101@gmail.com', 99995500, 'user_69be551089414.jpg', 'admin');
 
 --
 -- Index pour les tables déchargées
@@ -216,20 +171,6 @@ ALTER TABLE `invoice`
   ADD PRIMARY KEY (`invoice_id`);
 
 --
--- Index pour la table `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Index pour la table `sessions`
---
-ALTER TABLE `sessions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sessions_user_id_index` (`user_id`),
-  ADD KEY `sessions_last_activity_index` (`last_activity`);
-
---
 -- Index pour la table `stock`
 --
 ALTER TABLE `stock`
@@ -251,31 +192,25 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT pour la table `article`
 --
 ALTER TABLE `article`
-  MODIFY `article_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `article_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT pour la table `invoice`
 --
 ALTER TABLE `invoice`
-  MODIFY `invoice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT pour la table `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `invoice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `stock`
 --
 ALTER TABLE `stock`
-  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT pour la table `user`

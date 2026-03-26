@@ -1,12 +1,3 @@
 /test
 test.php
 *.log
-*.jpg
-*.png
-*.jpeg
-*.gif
-*.bmp
-*.svg
-*.webp
-!default.jpg
-implementation_plan.md

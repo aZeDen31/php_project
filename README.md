@@ -1,0 +1,1 @@
+Il faut obligatoirement mettre le dossier du projet dans un autre dossier qui s'appelle "php-exam" pour que le projet fonctionne.
