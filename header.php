@@ -44,18 +44,11 @@ if (isset($_SESSION['user_id'])) {
                 <nav class="nav">
                     <ul>
                         <li><a href="/php-exam/php_project">Accueil</a></li>
-                        <li><a href="boutique.php">Boutique</a></li>
-                        <li><a href="categories.php">Catégories</a></li>
-                        <li><a href="contact.php">Contact</a></li>
-                        <li><a href="panier">Panier</a></li>
+                        <li><a href="cart">Panier</a></li>
                     </ul>
                 </nav>
                 
                 <div class="header-actions">
-                    <div class="search-box">
-                        <input type="text" placeholder="Rechercher un produit...">
-                        <button><i class="fas fa-search"></i></button>
-                    </div>
 
                     <?php if ($isLoggedIn): ?>
                         <a href="account" class="icon-link profile-active header-avatar">
@@ -69,7 +62,6 @@ if (isset($_SESSION['user_id'])) {
 
                     <a href="cart" class="icon-link cart">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-count">0</span>
                     </a>
                 </div>
             </div>

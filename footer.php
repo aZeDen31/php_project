@@ -23,10 +23,8 @@
                 <div class="footer-section">
                     <h3>Liens rapides</h3>
                     <ul>
-                        <li><a href="#">Mon compte</a></li>
-                        <li><a href="#">Mes commandes</a></li>
-                        <li><a href="#">Liste de souhaits</a></li>
-                        <li><a href="#">Programme de fidélité</a></li>
+                        <li><a href="account">Mon compte</a></li>
+                        <li><a href="account#commandes">Mes commandes</a></li>
                     </ul>
                 </div>
                 
@@ -51,7 +49,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2024 ShopExpress. Tous droits réservés.</p>
+                <p>&copy; 2026 ShopExpress. Tous droits réservés.</p>
             </div>
         </div>
     </footer>

@@ -32,7 +32,13 @@ foreach ($cart_infos as $item) {
     
     if ($article_info) {
         $item_qty = isset($item['article_number']) ? (int)$item['article_number'] : 1;
-        $cart_items[] = array_merge($item, $article_info, ['purchased_qty' => $item_qty]);
+        
+        $stmtStock = $pdo->prepare("SELECT actual_stock FROM stock WHERE article_id = :id");
+        $stmtStock->execute([':id' => $article_id]);
+        $stockRow = $stmtStock->fetch();
+        $actual_stock = $stockRow ? (int)$stockRow['actual_stock'] : 0;
+        
+        $cart_items[] = array_merge($item, $article_info, ['purchased_qty' => $item_qty, 'actual_stock' => $actual_stock]);
         $cart_total += ($article_info['price'] * $item_qty);
     }
 }
@@ -56,44 +62,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pay_order'])) {
     } elseif ($user['solde'] < $cart_total) {
         $message = "Solde insuffisant. <a href='account.php#solde-section'>Rechargez votre compte</a>.";
     } else {
-        try {
-            $pdo->beginTransaction();
-
-            $new_solde = $user['solde'] - $cart_total;
-            $update_buyer = $pdo->prepare("UPDATE user SET solde = :solde WHERE user_id = :user_id");
-            $update_buyer->execute([':solde' => $new_solde, ':user_id' => $user_id]);
-
-            foreach ($cart_items as $item) {
-                $seller_id = $item['autor_id'];
-                $item_total = $item['price'] * $item['purchased_qty'];
-                
-                $update_seller = $pdo->prepare("UPDATE user SET solde = solde + :amt WHERE user_id = :seller_id");
-                $update_seller->execute([':amt' => $item_total, ':seller_id' => $seller_id]);
-
-                $update_stock = $pdo->prepare("UPDATE stock SET actual_stock = actual_stock - :qty WHERE article_id = :article_id");
-                $update_stock->execute([':qty' => $item['purchased_qty'], ':article_id' => $item['article_id']]);
+        $stock_error = false;
+        foreach ($cart_items as $item) {
+            if ($item['purchased_qty'] > $item['actual_stock']) {
+                $stock_error = true;
+                $message = "L'article <b>" . htmlspecialchars($item['article_name']) . "</b> n'a pas assez de stock (" . $item['actual_stock'] . " disponible(s)). Veuillez modifier votre panier.";
+                break;
             }
+        }
+        
+        if (!$stock_error) {
+            try {
+                $pdo->beginTransaction();
 
-            $insert_invoice = $pdo->prepare("INSERT INTO invoice (user_id, transaction_date, amount, invoice_address, invoice_city, postal_code) VALUES (:user_id, :t_date, :amount, :address, :city, :pc)");
-            $insert_invoice->execute([
-                ':user_id' => $user_id,
-                ':t_date' => date('Y-m-d'),
-                ':amount' => $cart_total,
-                ':address' => $address,
-                ':city' => $city,
-                ':pc' => $postal_code
-            ]);
+                $new_solde = $user['solde'] - $cart_total;
+                $update_buyer = $pdo->prepare("UPDATE user SET solde = :solde WHERE user_id = :user_id");
+                $update_buyer->execute([':solde' => $new_solde, ':user_id' => $user_id]);
 
-            // D) Vider le panier
-            $clear_cart = $pdo->prepare("DELETE FROM cart WHERE user_id = :user_id");
-            $clear_cart->execute([':user_id' => $user_id]);
+                foreach ($cart_items as $item) {
+                    $seller_id = $item['autor_id'];
+                    $item_total = $item['price'] * $item['purchased_qty'];
+                    
+                    $update_seller = $pdo->prepare("UPDATE user SET solde = solde + :amt WHERE user_id = :seller_id");
+                    $update_seller->execute([':amt' => $item_total, ':seller_id' => $seller_id]);
 
-            $pdo->commit();
-            $success = true;
+                    $update_stock = $pdo->prepare("UPDATE stock SET actual_stock = actual_stock - :qty WHERE article_id = :article_id");
+                    $update_stock->execute([':qty' => $item['purchased_qty'], ':article_id' => $item['article_id']]);
+                }
 
-        } catch (Exception $e) {
-            $pdo->rollBack();
-            $message = "Une erreur technique s'est produite lors du paiement.";
+                $insert_invoice = $pdo->prepare("INSERT INTO invoice (user_id, transaction_date, amount, invoice_address, invoice_city, postal_code) VALUES (:user_id, :t_date, :amount, :address, :city, :pc)");
+                $insert_invoice->execute([
+                    ':user_id' => $user_id,
+                    ':t_date' => date('Y-m-d'),
+                    ':amount' => $cart_total,
+                    ':address' => $address,
+                    ':city' => $city,
+                    ':pc' => $postal_code
+                ]);
+
+                // D) Vider le panier
+                $clear_cart = $pdo->prepare("DELETE FROM cart WHERE user_id = :user_id");
+                $clear_cart->execute([':user_id' => $user_id]);
+
+                $pdo->commit();
+                $success = true;
+
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $message = "Une erreur technique s'est produite lors du paiement.";
+            }
         }
     }
 }

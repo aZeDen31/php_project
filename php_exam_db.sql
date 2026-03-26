@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mer. 25 mars 2026 à 08:55
+-- Généré le : jeu. 26 mars 2026 à 14:30
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -69,7 +69,7 @@ CREATE TABLE `cart` (
 --
 
 INSERT INTO `cart` (`cart_id`, `user_id`, `article_id`, `article_number`) VALUES
-(2, 6, 4, 1);
+(5, 6, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -86,6 +86,18 @@ CREATE TABLE `invoice` (
   `invoice_city` varchar(255) NOT NULL,
   `postal_code` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `invoice`
+--
+
+INSERT INTO `invoice` (`invoice_id`, `user_id`, `transaction_date`, `amount`, `invoice_address`, `invoice_city`, `postal_code`) VALUES
+(1, 6, '2026-03-25', 55, '19 Avenue Philippe Lebas', 'Frévent', 62270),
+(2, 6, '2026-03-25', 7500, '19 Avenue Philippe Lebas', 'Frévent', 62270),
+(3, 1, '2026-03-26', 180, '19 Avenue Philippe Lebas', 'Frévent', 62270),
+(4, 1, '2026-03-26', 1250, '19 Avenue Philippe Lebas', 'Frévent', 62270),
+(5, 1, '2026-03-26', 20, '19 Avenue Philippe Lebas', 'Frévent', 62270),
+(6, 1, '2026-03-26', 20, '19 Avenue Philippe Lebas', 'Frévent', 62270);
 
 -- --------------------------------------------------------
 
@@ -145,8 +157,14 @@ CREATE TABLE `stock` (
 --
 
 INSERT INTO `stock` (`stock_id`, `article_id`, `actual_stock`) VALUES
-(1, 7, 10),
-(2, 8, 10);
+(1, 7, 0),
+(2, 8, 10),
+(3, 1, 10),
+(4, 2, 10),
+(5, 3, 10),
+(6, 4, 10),
+(7, 5, 10),
+(8, 6, 10);
 
 -- --------------------------------------------------------
 
@@ -169,9 +187,9 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`user_id`, `username`, `password`, `email`, `solde`, `profile_picture`, `role`) VALUES
-(1, 'admin', '$2y$10$KUISt/NHTo.WY6RceHJ1bOqSKKLec1qSvma7itMHNDJzXlGmeqLZe', 'admin@mail.com', 0, 'default.png', 'admin'),
-(6, 'aZeDenBis', '$2y$10$Dy7K/Isc/4a4P9hvvAMPjuecjnRIDn75MHYcmJiMLc5kiDkKIuFJK', 'lucasgosselin3101@gmail.com', 50, 'user_69be551089414.jpg', 'admin'),
-(8, 'grkn', '$2y$10$/1ZrzG6etL8fOl9ECZ2Zdehx4P.i8ec65W9j5ABN7/vDwi82wkt4a', 'vzub@m.com', 0, 'default.png', 'admin');
+(1, 'admin', '$2y$10$KUISt/NHTo.WY6RceHJ1bOqSKKLec1qSvma7itMHNDJzXlGmeqLZe', 'admin@mail.com', 5e26, 'default.jpg', 'admin'),
+(6, 'aZeDenBis', '$2y$10$Dy7K/Isc/4a4P9hvvAMPjuecjnRIDn75MHYcmJiMLc5kiDkKIuFJK', 'lucasgosselin3101@gmail.com', 99994700, 'user_69be551089414.jpg', 'admin'),
+(8, 'grkn', '$2y$10$/1ZrzG6etL8fOl9ECZ2Zdehx4P.i8ec65W9j5ABN7/vDwi82wkt4a', 'vzub@m.com', 0, 'default.jpg', 'admin');
 
 --
 -- Index pour les tables déchargées
@@ -239,13 +257,13 @@ ALTER TABLE `article`
 -- AUTO_INCREMENT pour la table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `invoice`
 --
 ALTER TABLE `invoice`
-  MODIFY `invoice_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `invoice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT pour la table `migrations`
@@ -257,7 +275,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT pour la table `stock`
 --
 ALTER TABLE `stock`
-  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `user`

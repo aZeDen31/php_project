@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_inscription'])) {
     $username = htmlspecialchars($_POST['username']);
     $email    = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-    $img_name = "default.png";
+    $img_name = "default.jpg";
 
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
         $upload_dir = 'img/';

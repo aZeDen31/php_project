@@ -20,9 +20,8 @@ $articles = $stmt->fetchAll();
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2>Nouvelle Collection 2024</h2>
-                <p>Découvrez nos derniers produits avec des réductions jusqu'à 50%</p>
-                <a href="boutique.php" class="btn btn-primary">Découvrir maintenant</a>
+                <h2>Nouvelle Collection 2026</h2>
+                <p>Découvrez nos derniers produits modernes et de qualité</p>
             </div>
         </div>
     </section>

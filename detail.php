@@ -10,9 +10,10 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $article_id = (int)$_GET['id'];
 
 $stmt = $pdo->prepare("
-    SELECT a.*, u.username AS author_name 
+    SELECT a.*, u.username AS author_name, s.actual_stock 
     FROM article a 
     JOIN user u ON a.autor_id = u.user_id 
+    LEFT JOIN stock s ON a.article_id = s.article_id
     WHERE a.article_id = :id
 ");
 $stmt->execute([':id' => $article_id]);
@@ -102,17 +103,23 @@ $similar = $stmtSim->fetchAll();
                 </div>
 
                 <div class="detail-actions">
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <button class="btn btn-primary" onclick="addToCart(<?php echo $article['article_id']; ?>)">
-                            <i class="fas fa-shopping-cart"></i> Ajouter au panier
-                        </button>
-                        <button class="btn btn-secondary" onclick="buyNow(<?php echo $article['article_id']; ?>)">
-                            <i class="fas fa-bolt"></i> Acheter maintenant
-                        </button>
+                    <?php if (isset($article['actual_stock']) && $article['actual_stock'] <= 0): ?>
+                        <div style="color:red; font-weight:bold; font-size:1.2rem; padding: 0.8rem 1rem; border: 1px solid red; border-radius: 8px;">
+                            <i class="fas fa-times-circle"></i> Rupture de stock
+                        </div>
                     <?php else: ?>
-                        <a href="login.php" class="btn btn-primary">
-                            <i class="fas fa-sign-in-alt"></i> Se connecter pour acheter
-                        </a>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <button class="btn btn-primary" onclick="addToCart(<?php echo $article['article_id']; ?>)">
+                                <i class="fas fa-shopping-cart"></i> Ajouter au panier
+                            </button>
+                            <button class="btn btn-secondary" onclick="buyNow(<?php echo $article['article_id']; ?>)">
+                                <i class="fas fa-bolt"></i> Acheter maintenant
+                            </button>
+                        <?php else: ?>
+                            <a href="login.php" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Se connecter pour acheter
+                            </a>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
 
@@ -162,9 +169,11 @@ $similar = $stmtSim->fetchAll();
 
 <script>
 let qty = 1;
+const maxStock = <?php echo isset($article['actual_stock']) ? (int)$article['actual_stock'] : 0; ?>;
 
 function changeQty(delta) {
-    qty = Math.max(1, qty + delta);
+    if (maxStock <= 0) return;
+    qty = Math.max(1, Math.min(qty + delta, maxStock));
     document.getElementById('qty').textContent = qty;
 }
 

@@ -237,7 +237,6 @@ $myArticles = $stmtArt->fetchAll();
                 </div>
 
                 <?php if ($is_own_profile): ?>
-                <!-- Commandes / Factures -->
                 <div id="commandes">
                     <h2><i class="fas fa-file-invoice"></i> Mes commandes</h2>
                     <?php if (empty($invoices)): ?>
